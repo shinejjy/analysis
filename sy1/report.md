@@ -108,14 +108,51 @@ $$
 
 
 ## 四、模型选择——机器学习
-### 介绍
-#### LDA算法
+### 4.1 介绍
+#### 4.1.1 LDA算法
 > LDA的全称是Linear Discriminant Analysis（线性判别分析），是一种supervised learning。有些资料上也称为是Fisher’s Linear Discriminant，因为它被Ronald Fisher发明自1936年。LDA是在目前机器学习、数据挖掘领域经典且热门的一个算法，据我所知，百度的商务搜索部里面就用了不少这方面的算法。
-##### 两类LDA算法
 
-##### 多类LDA算法
+#### 1. 二分类LDA算法
 
-#### SVM
+&emsp;&emsp;假设数据集 $D=\{(x_1,y_1),(x_2,y_2),...,(x_n,y_n)\}$，现在假设是二分类问题，则 $y_i\in\{0,1\}$。假设第一类样本个数为 $N_1$，第二类样本个数为 $N_2$。定义 $\mu^j$为第j类样本的均值，$\Sigma^j$为第j类样本的方差。计算公式如下：
+$$
+  \left\{
+    \begin{aligned}
+    &\mu^j=\frac{1}{N_j} \Sigma_{x\in X_j}x\\
+    &\Sigma^j=\sum_{x\in X_j}(x-\mu^j)(x-\mu^j)^T
+    \end{aligned}
+  \right.
+$$
+
+&emsp;&emsp;据我个人理解，分类的好坏在于类间散度和类内散度，所以我们最终需要使得类间散度与类内散度的比值越大越好。现假设我们的投影直线为向量 $\omega$，则对于任意一个样本 $x_i$，它在直线 $\omega$上的投影为 $\omega^T x_i$，则对于两类均值$\mu^j$，其在直线上的投影为 $\omega^T\mu^j$，则方差为 $\omega^T\Sigma^j\omega$，最终我们得到目标函数：
+
+$$argmax_{\{\omega\}}J(\omega)=\frac{||\omega^T\mu^0-\omega^T\mu^1||^2_2}{\omega^T\Sigma^0\omega+\omega^T\Sigma^1\omega}=\frac{\omega^T(\mu^0-\mu^1)(\mu^0-\mu^1)^T\omega}{\omega^T(\Sigma^0+\Sigma^1)\omega}$$
+
+令 $S_b=(\mu^0-\mu^1)(\mu^0-\mu^1)^T$，$S_w=\Sigma^0+\Sigma^1$，则公式变为：
+$$argmax_{\{\omega\}}J(\omega)=\frac{\omega^TS_b\omega}{\omega^TS_w\omega}$$
+
+&emsp;&emsp;根据瑞利商公式，$J(\omega^*)$ 的最大值为 $S_w^{-\frac 12}S_bS_w^{-\frac 12}$ 的最大特征值，而 $\omega^*$ 为该特征值对应的特征向量。
+
+
+#### 2. 多分类LDA算法
+&emsp;&emsp;由于该实验做的是四分类问题，所以需要进一步搞清楚多分类LDA算法的计算过程。同样地，假设数据集 $D=\{(x_1,y_1),(x_2,y_2),...,(x_n,y_n)\}$，则 $y_i\in\{1,2,...,k\}$，其中 $k$ 为样本类别个数。每个类别的样本个数、样本均值、样本方差与二分类LDA算法一致。
+
+由于该问题是多分类问题，所以投影的不再是一条直线，而是一个超平面 $W$，设该超平面的维度为 $d$，其基向量为 $(\omega_1, \omega_2, ..., \omega_d)$。
+
+&emsp;&emsp;由二分类问题推广，我们的目标函数变为：
+$$argmax_{\{W\}}J(W)=\frac{W^TS_bW}{W^TS_wW}$$
+其中，$S_b=\sum_{j=1}^d(\mu^j-\mu)(\mu^j-\mu)^T$，$\mu$为所有样本的均值， $S_w=\sum_{j=1}^k\Sigma^j$。
+
+&emsp;&emsp;由于目标函数是一个矩阵优化问题，故无法从二分类问题中推广，则这里会有个小小的目标函数的松弛（个人觉得很精辟）：
+$$argmax_{\{W\}}J(W)=\frac{\Pi_{diag} W^TS_bW}{\Pi_{diag}W^TS_wW}=\frac{\Pi_{i=1}^{d}\omega_i^TS_w\omega_i}{\Pi_{i=1}^{d}\omega_i^TS_b\omega_i}=\Pi_{i=1}^{d}\frac{\omega_i^TS_w\omega_i}{\omega_i^TS_b\omega_i}$$
+
+&emsp;&emsp;可以观察，化简最后的式子其实也是广义瑞利熵，最终的 $W^*$其实就是 $S_w^{-\frac 12}S_bS_w^{-\frac 12}$ 的最大 $d$个特征根所对应的特征向量。
+
+
+#### 4.1.2 SVM
+
+
+### 4.2 训练与测试
 
 <div align="center">
   <table style="width: 80%;">
