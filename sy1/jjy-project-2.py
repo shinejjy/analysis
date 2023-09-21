@@ -83,12 +83,30 @@ def train(train_loader, test_loader, test_dataset):
 
             # 记录训练损失到TensorBoard，使用step参数来区分不同的训练步骤
             writer.add_scalar('Training Loss', loss.item(), epoch * len(train_loader) + step)
-
-        # 在每个训练周期结束后输出预测结果
-        eval(model, test_loader, test_dataset, writer, epoch)
+            # 在每个训练步结束后输出预测结果
+            # eval(model, test_loader, test_dataset, writer, epoch * len(train_loader) + step)
 
     # 关闭TensorBoard SummaryWriter
     writer.close()
+
+    image, image_label = test_dataset[0]
+    x = image.unsqueeze(0)
+    x = x.to('cuda')
+    for name, layer in model.named_children():
+        x = layer(x)
+        # 获取x的通道数
+        num_channels = x.size(1)
+
+        # 创建一个图像，包含num_channels个子图
+        fig, axes = plt.subplots(1, num_channels, figsize=(12, 3))
+
+        # 遍历每个通道，并显示单独的子图
+        for channel in range(num_channels):
+            channel_image = x[0, channel].detach().cpu().numpy()
+            axes[channel].imshow(channel_image, cmap='viridis')
+            axes[channel].axis('off')
+
+        plt.show()
 
 
 def eval(model, test_loader, test_dataset, writer, epoch):
@@ -139,9 +157,16 @@ def eval(model, test_loader, test_dataset, writer, epoch):
         # 保存图像到TensorBoard
         writer.add_figure('Sample Predictions', fig, global_step=epoch)
 
+def save_model():
+    # 导出模型为ONNX格式
+    dummy_input = torch.randn(1, 1, 60, 80)  # 输入数据的示例
+    print("saved")
+    torch.onnx.export(Model(), dummy_input, "model.onnx", verbose=True)
+
 
 if __name__ == "__main__":
     input_folder = "sy1\\dataset"
     output_folder = "sy1\\redataset"
     output_folders = ["reclass1", "reclass2", "reclass3", "reclass4"]
-    Train(input_folder)
+    Train(output_folder)
+    # save_model()
