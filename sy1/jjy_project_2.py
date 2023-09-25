@@ -89,24 +89,8 @@ def train(train_loader, test_loader, test_dataset):
     # 关闭TensorBoard SummaryWriter
     writer.close()
 
-    image, image_label = test_dataset[0]
-    x = image.unsqueeze(0)
-    x = x.to('cuda')
-    for name, layer in model.named_children():
-        x = layer(x)
-        # 获取x的通道数
-        num_channels = x.size(1)
-
-        # 创建一个图像，包含num_channels个子图
-        fig, axes = plt.subplots(1, num_channels, figsize=(12, 3))
-
-        # 遍历每个通道，并显示单独的子图
-        for channel in range(num_channels):
-            channel_image = x[0, channel].detach().cpu().numpy()
-            axes[channel].imshow(channel_image, cmap='viridis')
-            axes[channel].axis('off')
-
-        plt.show()
+    # 保存模型参数
+    torch.save(model.state_dict(), 'my_model_params.pth')
 
 
 def eval(model, test_loader, test_dataset, writer, epoch):
