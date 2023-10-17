@@ -2,8 +2,8 @@ import os
 import shutil
 
 # 定义原始数据集文件夹路径和目标文件夹路径
-source_dir = "sy1/MDSD_subset"
-target_dir = "sy1/MDSM_subset_plus"
+source_dir = "MDSD_subset"
+target_dir = "MDSD_subset_plus"
 
 # 创建目标文件夹
 if not os.path.exists(target_dir):
@@ -26,15 +26,11 @@ for subfolder in os.listdir(source_dir):
             
             # 检查是否是文件夹
             if os.path.isdir(class_folder_path):
-                # 拷贝类别文件夹中的文件到目标子文件夹中
-                target_class_folder_path = os.path.join(target_subfolder_path, class_folder)
-                if not os.path.exists(target_class_folder_path):
-                    os.makedirs(target_class_folder_path)
-                
+                # 拷贝类别文件夹中的文件到目标子文件夹中        
                 # 遍历类别文件夹中的文件
                 for file_name in os.listdir(class_folder_path):
                     file_path = os.path.join(class_folder_path, file_name)
-                    target_file_path = os.path.join(target_class_folder_path, file_name)
+                    target_file_path = os.path.join(target_subfolder_path, class_folder + ' ' + file_name)
                     
                     # 拷贝文件
                     shutil.copy(file_path, target_file_path)

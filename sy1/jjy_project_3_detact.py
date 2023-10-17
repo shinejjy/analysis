@@ -3,9 +3,6 @@ from jjy_project_2 import Model
 import torch
 import cv2
 from torchvision import transforms
-import matplotlib.pyplot as plt
-
-
 
 if __name__ == '__main__':
     # 加载模型参数
@@ -16,10 +13,10 @@ if __name__ == '__main__':
         transforms.Resize((60, 80)),
         transforms.Grayscale(num_output_channels=1),  # 将图像转换为单通道灰度图像
         transforms.ToTensor()
-        ])
+    ])
     image = cv2.imread("sy1/redataset/reclass3/32.jpg")
     image = transform(image)
-    
+
     x = image.unsqueeze(0)
 
     for index, (name, layer) in enumerate(model.named_children()):

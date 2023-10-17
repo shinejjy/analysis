@@ -8,16 +8,86 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 
 
-def RGB2HSV(input_folder, output_folders):
+def visible_HSV(image, brightness_channel, equalized_image, hsv_image):
+    # 可视化过程
+    plt.figure(figsize=(10, 3))
+
+    plt.subplot(131)
+    plt.title('Original Image')
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.axis('off')
+
+    plt.subplot(132)
+    plt.title('Bright Image')
+    plt.imshow(brightness_channel, cmap='gray')
+    plt.axis('off')
+
+    plt.subplot(133)
+    plt.title('Equalized Brightness')
+    plt.imshow(equalized_image, cmap='gray')
+    plt.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+    # 可视化过程
+    plt.figure(figsize=(10 / 3 * 2, 3))
+
+    plt.subplot(121)
+    plt.title('Brightness Histogram')
+    plt.hist(brightness_channel.flatten(), bins=256, range=(0, 256), density=True, color='red', alpha=0.6)
+
+    plt.subplot(122)
+    plt.title('Equalized Brightness Histogram')
+    plt.hist(equalized_image.flatten(), bins=256, range=(0, 256), density=True, color='red', alpha=0.6)
+
+    plt.tight_layout()
+    plt.show()
+
+    # 分别提取HSV通道
+    h_channel = hsv_image[:, :, 0]
+    s_channel = hsv_image[:, :, 1]
+    v_channel = hsv_image[:, :, 2]
+
+    # 显示原始RGB图像
+    plt.figure(figsize=(12, 4))
+    plt.subplot(221)
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.title('Original RGB Image')
+    plt.axis('off')
+
+    # 显示HSV通道
+    plt.subplot(222)
+    plt.imshow(h_channel, cmap='hsv', vmin=0, vmax=179)
+    plt.title('Hue (H) Channel')
+    plt.axis('off')
+
+    plt.subplot(223)
+    plt.imshow(s_channel, cmap='gray', vmin=0, vmax=255)
+    plt.title('Saturation (S) Channel')
+    plt.axis('off')
+
+    plt.subplot(224)
+    plt.imshow(v_channel, cmap='gray', vmin=0, vmax=255)
+    plt.title('Value (V) Channel')
+    plt.axis('off')
+
+    plt.tight_layout()
+    plt.show()
+
+
+def RGB2HSV(input_folder, output_folders, size=None):
     # 加入输出算子
-    output_folders = [os.path.join("E:\\jjy\\class\\2023-2024 1\\数字音视频分析\\sy1\\redataset", folder) for folder in output_folders]
+    output_folders = [os.path.join("redataset_2", folder) for folder
+                      in output_folders]
     # 创建输出文件夹（如果不存在）
     for folder in output_folders:
         os.makedirs(folder, exist_ok=True)
+
     # 循环处理每个子文件夹中的图像
-    for i, folder in enumerate(output_folders, start=1):
-        input_subfolder = os.path.join(input_folder, f"class{i}")
-        output_subfolder = folder
+    for i, (i_folder, o_folder) in enumerate(zip(os.listdir(input_folder), output_folders), start=1):
+        input_subfolder = os.path.join(input_folder, i_folder)
+        output_subfolder = o_folder
 
         # 遍历子文件夹中的所有图像文件
         for j, filename in enumerate(os.listdir(input_subfolder)):
@@ -28,6 +98,8 @@ def RGB2HSV(input_folder, output_folders):
 
                 # 转换为HSV色彩空间
                 hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+                if size:
+                    hsv_image = cv2.resize(hsv_image, size)
                 # 提取亮度（灰度）通道
                 brightness_channel = hsv_image[:, :, 2]
                 # 进行直方图均衡化
@@ -36,74 +108,11 @@ def RGB2HSV(input_folder, output_folders):
                 # 构建输出文件路径
                 output_path = os.path.join(output_subfolder, filename)
                 # 保存亮度图像
+                print(output_path)
                 cv2.imwrite(output_path, equalized_image)
-                
-                if i==1 and j==0:
-                    # 可视化过程
-                    plt.figure(figsize=(10, 3))
-                    
-                    plt.subplot(131)
-                    plt.title('Original Image')
-                    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-                    plt.axis('off')
 
-                    plt.subplot(132)
-                    plt.title('Bright Image')
-                    plt.imshow(brightness_channel, cmap='gray')
-                    plt.axis('off')
-
-                    plt.subplot(133)
-                    plt.title('Equalized Brightness')
-                    plt.imshow(equalized_image, cmap='gray')
-                    plt.axis('off')
-
-                    plt.tight_layout()
-                    plt.show()
-
-                    # 可视化过程
-                    plt.figure(figsize=(10/3*2, 3))
-                    
-                    plt.subplot(121)
-                    plt.title('Brightness Histogram')
-                    plt.hist(brightness_channel.flatten(), bins=256, range=(0, 256), density=True, color='red', alpha=0.6)
-
-                    plt.subplot(122)
-                    plt.title('Equalized Brightness Histogram')
-                    plt.hist(equalized_image.flatten(), bins=256, range=(0, 256), density=True, color='red', alpha=0.6)
-
-                    plt.tight_layout()
-                    plt.show()
-
-                    # 分别提取HSV通道
-                    h_channel = hsv_image[:, :, 0]
-                    s_channel = hsv_image[:, :, 1]
-                    v_channel = hsv_image[:, :, 2]
-
-                    # 显示原始RGB图像
-                    plt.figure(figsize=(12, 4))
-                    plt.subplot(221)
-                    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-                    plt.title('Original RGB Image')
-                    plt.axis('off')
-
-                    # 显示HSV通道
-                    plt.subplot(222)
-                    plt.imshow(h_channel, cmap='hsv', vmin=0, vmax=179)
-                    plt.title('Hue (H) Channel')
-                    plt.axis('off')
-
-                    plt.subplot(223)
-                    plt.imshow(s_channel, cmap='gray', vmin=0, vmax=255)
-                    plt.title('Saturation (S) Channel')
-                    plt.axis('off')
-
-                    plt.subplot(224)
-                    plt.imshow(v_channel, cmap='gray', vmin=0, vmax=255)
-                    plt.title('Value (V) Channel')
-                    plt.axis('off')
-
-                    plt.tight_layout()
-                    plt.show()
+                # if i == 1 and j == 0:
+                #     visible_HSV(image, brightness_channel, equalized_image, hsv_image)
 
     print("处理完成！")
 
@@ -133,7 +142,7 @@ def visible_feature(X_train_lda, y_train, svm, surface_index):
     plt.show()
 
 
-def LDAPlusSVM(input_path):
+def LDAPlusSVM(input_path, size=None):
     data = []
     labels = []
     for cls, folder_name in enumerate(os.listdir(input_path)):
@@ -141,6 +150,8 @@ def LDAPlusSVM(input_path):
         for filename in os.listdir(folder_path):
             image_path = os.path.join(folder_path, filename)
             image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+            if size:
+                image = cv2.resize(image, size)
             image_vector = image.flatten()
             data.append(image_vector)
             labels.append(cls)
@@ -177,9 +188,9 @@ def LDAPlusSVM(input_path):
 
 
 if __name__ == "__main__":
-    input_folder = "sy1\\dataset"
-    output_folder = "sy1\\redataset"
+    input_folder = "MDSD_subset_plus"
+    output_folder = "redataset_2"
     output_folders = ["reclass1", "reclass2", "reclass3", "reclass4"]
-    RGB2HSV(input_folder, output_folders)
-    LDAPlusSVM(input_folder)
-    LDAPlusSVM(output_folder)
+    RGB2HSV(input_folder, output_folders, size=(320, 256))
+    LDAPlusSVM(input_folder, size=(320, 256))
+    LDAPlusSVM(output_folder, size=(320, 256))

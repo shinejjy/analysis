@@ -10,6 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 import tqdm
 from sklearn.metrics import precision_recall_fscore_support
 
+
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
@@ -30,7 +31,7 @@ class Model(nn.Module):
 
 
 def Train(input_path):
-     # 定义数据集划分比例
+    # 定义数据集划分比例
     train_ratio = 0.7
     val_ratio = 0.15
     test_ratio = 0.15
@@ -84,7 +85,7 @@ def train(train_loader, test_loader, test_dataset):
             # 记录训练损失到TensorBoard，使用step参数来区分不同的训练步骤
             writer.add_scalar('Training Loss', loss.item(), epoch * len(train_loader) + step)
             # 在每个训练步结束后输出预测结果
-            # eval(model, test_loader, test_dataset, writer, epoch * len(train_loader) + step)
+            eval(model, test_loader, test_dataset, writer, epoch * len(train_loader) + step)
 
     # 关闭TensorBoard SummaryWriter
     writer.close()
@@ -116,30 +117,30 @@ def eval(model, test_loader, test_dataset, writer, epoch):
         writer.add_scalar('Precision', precision, epoch)
         writer.add_scalar('Recall', recall, epoch)
         writer.add_scalar('F1-score', f1_score, epoch)
-        
 
-        # 随机选择一些测试样本
-        sample_indices = np.random.choice(len(test_dataset), num_samples, replace=False)
+        # # 随机选择一些测试样本
+        # sample_indices = np.random.choice(len(test_dataset), num_samples, replace=False)
+        #
+        # # 创建一个包含5x5子图的图像
+        # num_rows = 5
+        # num_cols = 5
+        # fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 7.5))
+        #
+        # for i, index in enumerate(sample_indices):
+        #     sample_image, sample_label = test_dataset[index]
+        #     sample_image = sample_image.unsqueeze(0)  # 添加批次维度
+        #
+        #     # 绘制原始图像
+        #     axes[i // 5, i % 5].imshow(sample_image.squeeze().cpu().numpy(), cmap='gray')
+        #     axes[i // 5, i % 5].set_title(f'T: {sample_label}, P: {y_pred[index]}')
+        #     axes[i // 5, i % 5].axis('off')
+        #
+        # # 调整子图之间的间距
+        # plt.subplots_adjust(wspace=0.3, hspace=0.2)
+        #
+        # # 保存图像到TensorBoard
+        # writer.add_figure('Sample Predictions', fig, global_step=epoch)
 
-        # 创建一个包含5x5子图的图像
-        num_rows = 5
-        num_cols = 5
-        fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 7.5))
-
-        for i, index in enumerate(sample_indices):
-            sample_image, sample_label = test_dataset[index]
-            sample_image = sample_image.unsqueeze(0)  # 添加批次维度
-
-            # 绘制原始图像
-            axes[i // 5, i % 5].imshow(sample_image.squeeze().cpu().numpy(), cmap='gray')
-            axes[i // 5, i % 5].set_title(f'T: {sample_label}, P: {y_pred[index]}')
-            axes[i // 5, i % 5].axis('off')
-
-        # 调整子图之间的间距
-        plt.subplots_adjust(wspace=0.3, hspace=0.2)
-
-        # 保存图像到TensorBoard
-        writer.add_figure('Sample Predictions', fig, global_step=epoch)
 
 def save_model():
     # 导出模型为ONNX格式
@@ -149,8 +150,8 @@ def save_model():
 
 
 if __name__ == "__main__":
-    input_folder = "sy1\\dataset"
-    output_folder = "sy1\\redataset"
-    output_folders = ["reclass1", "reclass2", "reclass3", "reclass4"]
+    input_folder = "MDSD_subset_plus"
+    output_folder = "redataset_2"
     Train(output_folder)
+    Train(input_folder)
     # save_model()
